@@ -99,8 +99,15 @@ export function ObjectForm({
             type="file"
             accept="image/*"
             onChange={handleFileChange}
-            className="mt-1 block w-full text-sm text-slate-500 file:mr-4 file:rounded-full file:border-0 file:bg-violet-50 file:px-4 file:py-2 file:text-sm file:font-semibold file:text-violet-700 hover:file:bg-violet-100"
+            className="sr-only"
+            id="object-image"
           />
+          <label
+            htmlFor="object-image"
+            className="mt-1 flex min-h-12 w-full cursor-pointer items-center justify-center rounded-xl border border-dashed border-slate-300 bg-slate-50 px-4 py-3 text-sm font-medium text-slate-600 transition hover:border-violet-400 hover:bg-violet-50 hover:text-violet-700"
+          >
+            {imageFile ? "Image sélectionnée" : "Choisir une image"}
+          </label>
         </label>
 
         {imagePreview ? (

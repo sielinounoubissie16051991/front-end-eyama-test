@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { AppNotification } from "@/components/layout/app-notification";
 import { AppShell } from "@/components/layout/app-shell";
+import { ConfirmModal } from "@/components/layout/confirm-modal";
 import { ObjectCard } from "@/components/objects/object-card";
 import { ObjectForm } from "@/components/objects/object-form";
 import { deleteObject, getObjects } from "@/lib/api";
@@ -13,6 +14,7 @@ export default function HomePage() {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState("");
   const [notification, setNotification] = useState<{ message: string; type: "success" | "error" } | null>(null);
+  const [pendingDeleteId, setPendingDeleteId] = useState<string | null>(null);
 
   const loadObjects = async () => {
     try {
@@ -37,18 +39,23 @@ export default function HomePage() {
   };
 
   const handleDelete = async (id: string) => {
-    const confirmed = window.confirm("Voulez-vous vraiment supprimer cet objet ?");
-    if (!confirmed) {
+    setPendingDeleteId(id);
+  };
+
+  const confirmDelete = async () => {
+    if (!pendingDeleteId) {
       return;
     }
 
     try {
-      await deleteObject(id);
-      setObjects((current) => current.filter((object) => object.id !== id));
+      await deleteObject(pendingDeleteId);
+      setObjects((current) => current.filter((object) => object.id !== pendingDeleteId));
       setNotification({ message: "Objet supprimé avec succès.", type: "success" });
     } catch (err) {
       setError(err instanceof Error ? err.message : "La suppression a échoué.");
       setNotification({ message: "La suppression a échoué.", type: "error" });
+    } finally {
+      setPendingDeleteId(null);
     }
   };
 
@@ -65,6 +72,14 @@ export default function HomePage() {
         message={notification?.message ?? null}
         type={notification?.type ?? "success"}
         onClose={() => setNotification(null)}
+      />
+      <ConfirmModal
+        isOpen={Boolean(pendingDeleteId)}
+        title="Supprimer cet objet ?"
+        message="Cette action est irréversible. L’objet et son image seront supprimés."
+        confirmLabel="Oui, supprimer"
+        onConfirm={confirmDelete}
+        onCancel={() => setPendingDeleteId(null)}
       />
       <div className="space-y-8">
         <section className="grid gap-6 lg:grid-cols-[1.1fr_0.9fr]">
