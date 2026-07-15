@@ -1,14 +1,8 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  // devIndicators: false, // Indicateurs du mode de développement désactivés
-/*  experimental: {
-    appDir: true, // Activation du répertoire d'application expérimentale
-  },
-  typescript: {
-    ignoreBuildErrors: true, // Ignorer les erreurs de compilation TypeScript lors de la construction
-  },
-  */
+  // Génère une sortie autonome compatible avec Docker et un déploiement sur VPS
+  output: "standalone",
 };
 
 export default nextConfig;
