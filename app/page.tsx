@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
+import { AppNotification } from "@/components/layout/app-notification";
 import { AppShell } from "@/components/layout/app-shell";
 import { ObjectCard } from "@/components/objects/object-card";
 import { ObjectForm } from "@/components/objects/object-form";
@@ -11,6 +12,7 @@ export default function HomePage() {
   const [objects, setObjects] = useState<ObjectItem[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState("");
+  const [notification, setNotification] = useState<{ message: string; type: "success" | "error" } | null>(null);
 
   const loadObjects = async () => {
     try {
@@ -31,14 +33,22 @@ export default function HomePage() {
 
   const handleCreate = (object: ObjectItem) => {
     setObjects((current) => [object, ...current]);
+    setNotification({ message: "Objet ajouté avec succès.", type: "success" });
   };
 
   const handleDelete = async (id: string) => {
+    const confirmed = window.confirm("Voulez-vous vraiment supprimer cet objet ?");
+    if (!confirmed) {
+      return;
+    }
+
     try {
       await deleteObject(id);
       setObjects((current) => current.filter((object) => object.id !== id));
+      setNotification({ message: "Objet supprimé avec succès.", type: "success" });
     } catch (err) {
       setError(err instanceof Error ? err.message : "La suppression a échoué.");
+      setNotification({ message: "La suppression a échoué.", type: "error" });
     }
   };
 
@@ -51,6 +61,11 @@ export default function HomePage() {
 
   return (
     <AppShell>
+      <AppNotification
+        message={notification?.message ?? null}
+        type={notification?.type ?? "success"}
+        onClose={() => setNotification(null)}
+      />
       <div className="space-y-8">
         <section className="grid gap-6 lg:grid-cols-[1.1fr_0.9fr]">
           <div className="rounded-3xl border border-slate-200 bg-white p-8 shadow-sm">
